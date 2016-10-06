@@ -8,6 +8,9 @@ Checkout or download the project and copy it in your project. Change values in /
 
 Install composer in /build (https://getcomposer.org/download/). Then run hello to check phing.
 
+    cd build
+    curl -sS https://getcomposer.org/installer | php
+    php composer.phar install
     vendor/bin/phing hello
 
 Run install.
