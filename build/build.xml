@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+**
+* Phing Doc
+* https://www.phing.info/docs/guide/trunk/
+*
+* Phing build.xml for deployment and install
+* @commands:
+*    /vendor/bin/phing install
+*    /vendor/bin/phing deploy
+*    /vendor/bin/phing update
+*    /vendor/bin/phing prepare
+**
+-->
+<project name="PhingSimple" default="install" basedir="../">
+
+    <!-- base project path -->
+    <property name="destination" value="${project.basedir}" />
+
+    <!-- Load project settings from external file -->
+    <property file="build/config/project.properties" />
+
+    <!-- #################################### Main Tasks ########################################### -->
+
+    <!-- test -->
+    <target name="hello" description="Displays basic project information" depends="_test"> </target>
+
+    <!-- install -->
+    <target name="install" description="Anwendung installieren" depends="_welcome, _getconfig-create-dist, _composer-download, _composer-update, _composer-install"> </target>
+
+    <!-- update -->
+    <target name="update" description="Anwendung aktualisieren" depends="_composer-self-update, _composer-update"> </target>
+
+    <!-- prepare config -->
+    <target name="prepare" description="Config aktualisieren" depends="_getconfig-create-dist"> </target>
+
+    <!-- #################################### Sub Tasks ########################################### -->
+
+    <target name="_test">
+        <echo message="Hallo, Willkommen zu ${phing.project.name}!" />
+    </target>
+
+    <target name="_welcome">
+        <echo message="Das Projekt ${phing.project.name} wird jetzt installiert." />
+    </target>
+
+    <target name="_getconfig-create-dist">
+        <!-- catch command -->
+        <propertyprompt propertyName="PhingSimpleEnv" promptText="System (docker, local, production)" defaultValue="local" />
+
+        <!--<property name="config" value="false" override="true" />-->
+
+        <property name="envfile" value="build/config/env/${PhingSimpleEnv}.properties" />
+        <available file="${envfile}" property="envfilefound" value="true"/>
+
+        <fail unless="envfilefound" message="Missing env configuration file (${envfile})!" />
+
+        <property file="${envfile}" />
+
+        <foreach list="${dist.files}" delimiter="," target="_create-file-from-dist-loop" param="file" />
+    </target>
+
+    <!-- loop for copy task, create php files from dist -->
+    <target name="_create-file-from-dist-loop">
+        <copy
+                file="${destination}/${dist.files.${file}.source}"
+                tofile="${destination}/${dist.files.${file}.destination}"
+                overwrite="true">
+            <filterchain>
+                <expandproperties />
+            </filterchain>
+        </copy>
+    </target>
+
+    <!-- run composer download -->
+    <target name="_composer-download">
+        <!-- download composer -->
+        <!-- httpget not working correctly, composer cant run install -->
+        <httpget url="https://getcomposer.org/installer" dir="${destination}" filename="composer.phar" sslVerifyPeer="false" />
+        <!--<exec dir="${destination}" command="wget https://getcomposer.org/installer -O composer.phar" checkreturn="true" passthru="true"> </exec>-->
+        <!-- Make executable on Unix -->
+        <if>
+            <or>
+                <os family="unix"/>
+                <os family="mac"/>
+            </or>
+            <then>
+                <exec dir="${destination}"
+                      command="chmod +x composer.phar"
+                      passthru="true"
+                      checkreturn="true" />
+                <phingcall target="_composer-install"> </phingcall>
+            </then>
+        </if>
+    </target>
+
+    <!-- run composer install -->
+    <target name="_composer-install">
+        <!--<exec dir="${destination}" command="php composer.phar update" checkreturn="true" passthru="true"> </exec>-->
+        <!--<exec dir="${destination}" command="php composer.phar install" checkreturn="true" passthru="true"> </exec>-->
+        <!--<composer composer="${destination}/composer.phar" command="install">-->
+            <!--<arg value="&#45;&#45;dev"/>-->
+        <!--</composer>-->
+        <composer composer="${destination}/composer.phar" command="install"> </composer>
+    </target>
+
+    <!-- run composer self-update -->
+    <target name="_composer-self-update">
+        <composer composer="${destination}/composer.phar" command="self-update"> </composer>
+    </target>
+
+    <!-- run composer update -->
+    <target name="_composer-update">
+        <composer composer="${destination}/composer.phar" command="update"> </composer>
+    </target>
+
+</project>

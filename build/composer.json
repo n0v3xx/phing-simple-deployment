@@ -1,0 +1,22 @@
+{
+    "name": "PhingSimple",
+    "type": "library",
+    "description": "deployment",
+    "keywords": [
+        "deployment",
+        "project"
+    ],
+    "config": {
+        "secure-http": false
+    },
+    "repositories": [
+        {
+            "type": "pear",
+            "url": "http://pear.php.net"
+        }
+    ],
+    "require": {
+        "pear-pear.php.net/http_request2": "~2.2",
+        "phing/phing": "2.*"
+    }
+}
