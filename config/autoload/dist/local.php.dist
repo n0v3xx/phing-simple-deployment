@@ -4,5 +4,5 @@
  */
 
 return [
-    'env' => ${file.name},
+    'env' => '${file.name}',
 ];

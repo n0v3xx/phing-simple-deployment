@@ -3,7 +3,7 @@
 Simple phing deployment for basic web projects.
 
 ## Install
-Checkout or download the project and copy it in your project. Change values in /build/config/project.properties and in
+Checkout or download the project and copy the build folder to your own project. Change values in /build/config/project.properties and in
 /build/config/env/*.
 
 Install composer in /build (https://getcomposer.org/download/). Then run hello to check phing.
@@ -33,6 +33,9 @@ Run install.
 * deploy database to remote host
 
 ## Changelog
+
+### v0.0.2
+* add php skeleton to test phing
 
 ### v0.0.1
 * initial release
